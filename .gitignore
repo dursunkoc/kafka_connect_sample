@@ -1,0 +1,6 @@
+.DS_Store
+oracle_instantclient
+visual-connector
+visual-connector-be
+nginx
+docker-compose-ws.yaml

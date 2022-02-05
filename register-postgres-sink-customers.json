@@ -1,0 +1,19 @@
+{
+    "name": "jdbc-sink-customers-postgress",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "dialect.name": "PostgreSqlDatabaseDialect",
+        "table.name.format": "CUSTOMERS",
+        "topics": "oracle-db-source.INVENTORY.CUSTOMERS",
+        "connection.url": "jdbc:postgresql://postgres:5432/inventory?user=postgres&password=postgres",
+        "transforms": "unwrap",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
+        "auto.create": "true",
+        "insert.mode": "upsert",
+        "delete.enabled": "true",
+        "pk.fields": "ID",
+        "pk.mode": "record_key"
+    }
+}

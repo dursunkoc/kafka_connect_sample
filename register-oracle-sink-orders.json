@@ -1,0 +1,25 @@
+{
+    "name": "jdbc-sink-orders",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "dialect.name": "OracleDatabaseDialect",
+        "table.name.format": "ORDERS",
+        "topics": "dbz_oracle.INVENTORY.ORDERS",
+        "connection.url": "jdbc:oracle:thin:@trg_oracle:1521:XE",
+        "connection.user": "INVENTORY",
+        "connection.password": "dbz",
+        "transforms": "unwrap,timestampConverter",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
+        "transforms.timestampConverter.type": "io.github.dursunkoc.multiplefieldtimestampconverter.TimestampConverterMultifields$Value",
+        "transforms.timestampConverter.target.type": "Date",
+        "transforms.timestampConverter.fields": "ORDER_DATE,PURCHASE_DATE",
+        "transforms.timestampConverter.format": "yyyy-MM-dd HH:mm:ss",
+        "auto.create": "true",
+        "insert.mode": "upsert",
+        "delete.enabled": "true",
+        "pk.fields": "ID",
+        "pk.mode": "record_key"
+    }
+}

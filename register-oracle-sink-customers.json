@@ -1,0 +1,23 @@
+{
+    "name": "jdbc-sink-customers",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "dialect.name": "OracleDatabaseDialect",
+        "table.name.format": "CUSTOMERS",
+        "topics": "oracle-db-source.INVENTORY.CUSTOMERS",
+        "connection.url": "jdbc:oracle:thin:@oracle-db-target:1521:XE",
+        "connection.user": "INVENTORY",
+        "connection.password": "dbz",
+        "transforms": "unwrap,ettdate",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
+        "transforms.ettdate.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+        "transforms.ettdate.timestamp.field": "ETT_DATE",
+        "auto.create": "true",
+        "insert.mode": "upsert",
+        "delete.enabled": "true",
+        "pk.fields": "ID",
+        "pk.mode": "record_key"
+    }
+}

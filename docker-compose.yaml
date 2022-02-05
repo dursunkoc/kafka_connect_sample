@@ -1,0 +1,79 @@
+version: '3'
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    container_name: kafka
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+  connect:
+    container_name: connect
+    image: debezium/connect-with-oracle-jdbc:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-with-oracle-jdbc
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+        JMX_AGENT_VERSION: 0.15.0
+    ports:
+     - 5005:5005
+     - 1976:1976
+     - 8083:8083
+    links:
+     - kafka
+     - oracle-db-source
+     - oracle-db-target
+     - postgres
+    volumes:
+     - ${PROJECT_PATH}/debezium-with-oracle-jdbc/xstreams.jar /kafka/libs
+     - ${PROJECT_PATH}/debezium-with-oracle-jdbc/oracle_instantclient/ojdbc8.jar /kafka/libs
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+     - LD_LIBRARY_PATH=/instant_client
+     - KAFKA_OPTS=-javaagent:/kafka/etc/jmx_prometheus_javaagent.jar=8080:/kafka/etc/config.yml
+     - JMXHOST=localhost
+     - JMXPORT=1976
+  oracle-db-source:
+    container_name: oracle-db-source
+    image: oracleinanutshell/oracle-xe-11g:latest
+    ports:
+      - 1521:1521
+      - 5500:5500
+    volumes:
+      - ${PROJECT_PATH}/ora-init:/docker-entrypoint-initdb.d
+    environment:
+    - ORACLE_ALLOW_REMOTE=YES
+    - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+  oracle-db-target:
+      container_name: oracle-db-target
+      image: oracleinanutshell/oracle-xe-11g:latest
+      ports:
+        - 3042:1521
+        - 3300:5500
+      volumes:
+        - ${PROJECT_PATH}/ora-target-init:/docker-entrypoint-initdb.d
+      environment:
+      - ORACLE_ALLOW_REMOTE=YES
+      - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+  postgres:
+    container_name: postgres
+    image: postgres
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+     - POSTGRES_DB=inventory

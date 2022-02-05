@@ -1,0 +1,21 @@
+{
+    "name": "jdbc-sink-products",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "dialect.name": "OracleDatabaseDialect",
+        "table.name.format": "PRODUCTS",
+        "topics": "dbz_oracle.INVENTORY.PRODUCTS",
+        "connection.url": "jdbc:oracle:thin:@trg_oracle:1521:XE",
+        "connection.user": "INVENTORY",
+        "connection.password": "dbz",
+        "transforms": "unwrap",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
+        "auto.create": "true",
+        "insert.mode": "upsert",
+        "delete.enabled": "true",
+        "pk.fields": "ID",
+        "pk.mode": "record_key"
+    }
+}
